@@ -1,61 +1,17 @@
 
-//exercise 2.1
+//exercise 2.1-2.5
 
 import './App.css'
+import Course from './components/Course'
 
-const Course = (props) => {
-
-  const {course} = props
-  
-  return (
-  <div>
-    <Header course={course} />
-    <Content course={course} />
-  </div>
-  )
-  
-}
-
-const Header = (props) => {
-  //console.log(props)
-  const {course} = props
-  
-  return (
-    <div>
-      <h2>{course.name}</h2>
-    </div>
-  )
-}
-  
-const Content = (props) => {
-
-  const {course} = props
-
-  return (
-    <div>
-      <Part  course={course}/>
-    </div>
-  )
-}
-
-const Part = (props) => {
-
-  const {course} = props
-  
-
-  return (
-     <ul style={{listStyleType:'none',textAlign:'left'}} >
-      {course.parts.map((part)=><li key={part.id}><p>{part.name}: {part.exercises}</p></li>)}
-    </ul>
-  )
-}
 
 
 
 
 const App = () => {
 
-  const course = {
+  const courses = [
+    {
     id:1,
     name: 'Half Stack application development',
     parts: [
@@ -74,15 +30,40 @@ const App = () => {
         exercises: 14,
         id: 3
       },
-      /*{
-        name: 'High-Order functions',
-        exercises: 9,
+      {
+        name: 'Redux',
+        exercises: 11,
         id:4
-      }*/
+      }
+    ]
+  },
+  {
+    name: 'Node.js',
+    id:2,
+    parts: [
+      {
+        name: 'Routing',
+        exercises: 3,
+        id: 1
+      },
+      {
+        name: 'Middlewares',
+        exercises: 7,
+        id: 2
+      }
     ]
   }
+  
 
-  return <Course course={course} />
+]
+
+  return (
+    <div>
+      <h2>Web development curriculum</h2>
+      <Course courses={courses} />
+    </div>
+    
+  ) 
   
   
 }
