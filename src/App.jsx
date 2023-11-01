@@ -1,12 +1,13 @@
 
-//exercise 2.1-2.5
-
 import './App.css'
+import { useState } from 'react'
+//import Note from './components/Note'
+
+
+
+//exercise 2.1-2.5
+/*
 import Course from './components/Course'
-
-
-
-
 
 const App = () => {
 
@@ -66,6 +67,201 @@ const App = () => {
   ) 
   
   
+}
+
+export default App
+
+
+const App = (props) =>{
+
+  const [notes, setNotes] = useState(props.notes)
+  const [newNote,setNewNote] = useState('')
+  const [showAll, setShowAll] = useState(true)
+ // console.log(typeof notes)
+ // console.log(props.notes)
+
+  const addNote = (event) =>{
+
+    event.preventDefault()
+    const noteObject = {
+      content: newNote,
+      important: Math.random() <0.5,
+      id: notes.length + 1,
+    }
+    setNotes(notes.concat(noteObject))
+    setNewNote('')
+    
+  }
+
+  const handleNoteChange =(event) => {
+   // console.log(event.target.value)
+    setNewNote(event.target.value)
+   // console.log(event)
+   
+  }
+  //console.log(notes)
+const notesToShow = showAll? notes: notes.filter(note=>note.important)
+
+return(
+  <div>
+    <h1>Notes</h1>
+    <div>
+      <button onClick={() => setShowAll(!showAll)}>
+        show {showAll?'important':'all'}
+      </button>
+    </div>
+
+
+
+    <ul>
+      {notesToShow.map(note =>
+        <Note key={note.id} note={note}/>)}
+    </ul>
+    <form onSubmit={addNote}>
+      <input
+       value={newNote}
+       onChange={handleNoteChange}
+       />
+      <button type='submit'>save</button>
+    </form>
+  </div>
+)
+}*/
+
+//ex.2.6-2.10 The Phonebook
+
+const Filter = (props)=>{
+
+  const{foundPerson,findPerson}=props
+
+  return(
+        <div>
+          filter shown with <input
+          value={foundPerson}
+          onChange={findPerson} />
+        </div>
+  )
+}
+
+const PersonForm = (props)=>{
+  const{addNewPerson,newName,addNewName,newNumber,addNewNumber}=props
+
+  return(
+
+       <form onSubmit={addNewPerson}>
+
+          <div>
+            name: <input
+            value={newName}
+            onChange={addNewName} />
+          </div>
+
+          <div>number: <input 
+            value={newNumber}
+            onChange={addNewNumber}/>
+          </div>
+
+          <div>
+            <button type='submit' style={{marginTop:20}}>add</button>
+          </div>
+
+        </form>
+
+  )
+}
+
+const Persons = (props)=>{
+  const{allNames,persons,foundPerson}=props
+
+  const availableContact = allNames.filter(person=>person.toUpperCase()
+===foundPerson.toUpperCase()).join()
+//console.log(availableContact)
+
+const personToShow = allNames.includes(availableContact)
+? persons.filter(person=>person.name.toUpperCase()===foundPerson.toUpperCase()): persons
+
+
+  return(
+        <ul style={{listStyleType:'none'}}>
+          
+          {personToShow.map((person)=><li key={person.name}>{person.name}: {person.number}</li>)}
+          
+        </ul>
+  )
+}
+
+const App =()=>{
+const[persons, setPersons] = useState([{name:'Arto Hellas',number:'99-802-18-99'}])
+const [newName, setNewName] = useState('')
+const [newNumber, setNewNumber] = useState('')
+const [foundPerson, setFoundPerson]=useState('')
+
+const addNewName=(event)=>{
+    setNewName(event.target.value)  
+}
+
+const addNewNumber = (event)=>{
+  setNewNumber(event.target.value)
+}
+//console.log(newName)
+const allNames = persons.map((person) => person.name)
+//console.log(allNames)
+
+
+const addNewPerson=(event)=>{
+  event.preventDefault()
+  
+  if(allNames.includes(newName)){
+    alert(`${newName} is already added to the phonebook`)
+  }
+  else {
+    setPersons(persons.concat({name:newName,number:newNumber})
+    //setPersons([...persons,{name:newName,number:newNumber}]  
+    )
+  }
+  
+  setNewName('')
+  setNewNumber('')
+}
+
+//console.log(persons)
+
+
+  
+const findPerson =(event)=>{
+  setFoundPerson(event.target.value)
+  
+}
+
+//console.log(foundPerson)
+
+
+
+  return (
+    <div>
+        <h2>Phonebook</h2>
+        
+        <Filter foundPerson={foundPerson} findPerson={findPerson}/>
+
+        <h2>add a new</h2>
+
+         <PersonForm 
+         addNewPerson={addNewPerson}
+         newName={newName}
+         addNewName={addNewName}
+         newNumber={newNumber}
+         addNewNumber={addNewNumber}
+         />
+        
+
+        <h2>Numbers</h2>
+         <Persons 
+         allNames={allNames}
+         persons={persons}
+         foundPerson={foundPerson} />
+        
+    </div>
+  )
 }
 
 export default App
