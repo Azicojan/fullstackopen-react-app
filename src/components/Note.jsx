@@ -1,10 +1,15 @@
 
 
 
-const Note = ({note}) => {
-    //console.log(note)
+const Note = ({note }) => {
+    
+  
+
     return (
-      <li>{note.name} {note.number}</li>
+      <li>
+        {note.name} {note.number}
+        
+     </li>
     )
   }
 
