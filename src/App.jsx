@@ -495,7 +495,7 @@ const personToShow = allNames.includes(availableContact)
   return(
         <ul style={{listStyleType:'none'}}>
           
-          {personToShow.map((person)=><li key={person.id}>
+          {personToShow.map((person)=><li key={person.id} className='person'>
             {person.name}: {person.number} 
              <button onClick={()=>
              {if(window.confirm(`Delete ${person.name}?`)){
@@ -510,12 +510,29 @@ const personToShow = allNames.includes(availableContact)
   )
 }
 
+const Notification = ({message,error}) =>{
+  if(message === null) {
+    return null
+  }
+
+  return (
+   error === 404 ? (
+   <div className='redNotification'>
+      {message}
+   </div>) : (
+   <div className='notification'>
+      {message}
+    </div>)
+  )
+}
+
 const App =()=>{
 const[persons, setPersons] = useState([])
 const [newName, setNewName] = useState('')
 const [newNumber, setNewNumber] = useState('')
 const [foundPerson, setFoundPerson]=useState('')
-
+const [notificationMessage, setNotificationMessage] = useState(null)
+const [error, setError]= useState(null)
 
 
   useEffect(()=>{
@@ -569,8 +586,37 @@ const addNewPerson=(event)=>{
             .getAll()
             .then(initialList=>{
             setPersons(initialList)
-  })
-          })
+           })
+
+          setNotificationMessage(
+            `${contact.name}'s number has been successfully changed`
+          )
+          setTimeout(()=>{
+            setNotificationMessage(null)
+          },4000)
+
+
+          }).catch(error =>{
+           // console.log(error.response.status,'fail')
+            setError(error.response.status)
+
+          
+              setNotificationMessage(
+              `${contact.name} has already been removed from the server`
+            )
+            setTimeout(()=>{
+              setNotificationMessage(null)
+
+              personService
+              .getAll()
+              .then(initialList=>{
+              setPersons(initialList)
+             })
+            },5000)
+
+     })
+                  
+         
     
      }
      else{
@@ -587,6 +633,13 @@ const addNewPerson=(event)=>{
     .then(returnedPerson=>{
      // console.log(returnedPerson)
       setPersons(persons.concat(returnedPerson))
+
+      setNotificationMessage(
+        `${returnedPerson.name} has successfully been  added`
+      )
+      setTimeout(()=>{
+        setNotificationMessage(null)
+      },4000)
     })
    
         
@@ -622,7 +675,9 @@ const deletePerson = (id) => {
 
   return (
     <div>
-        <h2>Phonebook</h2>
+        <h1>Phonebook</h1>
+
+        <Notification message={notificationMessage} error={error} />
         
         <Filter foundPerson={foundPerson} findPerson={findPerson}/>
 
@@ -646,7 +701,8 @@ const deletePerson = (id) => {
          foundPerson={foundPerson}
          deletePerson={deletePerson}
 
-          />
+        />
+       
         
     </div>
   )

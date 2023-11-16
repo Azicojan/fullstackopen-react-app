@@ -34,6 +34,8 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color:green;
+  font-style: italic;
 }
 
 button {
@@ -66,4 +68,32 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.person{
+  color:grey;
+  padding-top: 3px;
+  font-size: 15px;
+}
+
+.notification{
+  color: green;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-color: green;
+}
+
+.redNotification{
+  color: red;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-color: red;
 }
