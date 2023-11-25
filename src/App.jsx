@@ -3,7 +3,7 @@ import './App.css'
 import {useState,useEffect} from 'react'
 import axios from 'axios'
 
-
+const api_key = import.meta.env.VITE_SOME_KEY
 
 
 const NewListCountry= (props)=>{
@@ -68,6 +68,7 @@ const NewListCountry= (props)=>{
       return(
         <div>
           <TheCountry theCountry={theCountry}/>
+          
         </div>
       )
     
@@ -84,13 +85,14 @@ const NewListCountry= (props)=>{
  const TheCountry = ({theCountry})=>{
 
   const [returnedCountry, setReturnedCountry] = useState('')
+  const [returnedCapital, setReturnedCapital] = useState('')
 
    useEffect(()=>{
     if(theCountry){
      axios.get(`https://studies.cs.helsinki.fi/restcountries/api/name/${theCountry}`).then(response=>{
          //console.log(response)
          setReturnedCountry(response.data)
-        
+         setReturnedCapital(response.data.capital)
  
            
      }).catch(error=>{
@@ -117,12 +119,54 @@ const NewListCountry= (props)=>{
               {languages.map((language,index)=><li key={index}>{language}</li>)}
             </ul>
             <img src={returnedCountry.flags.png} alt="a country's flag"/>
-            
+            < Weather  returnedCapital={returnedCapital}/>
             </>
         )   
   
           }
                       
+ }
+
+ const Weather = ({returnedCapital})=>{
+   const [data, setData]=useState([])
+
+   useEffect(()=>{
+     axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${returnedCapital}&appid=${api_key}&units=metric`).then(response=>{
+      //console.log([response.data[0].lat,response.data[0].lon])
+     // console.log(response.data)
+      let info = response.data
+      setData(info)
+
+
+     }).catch(error=>{
+      console.log(error.message);
+      if(error.response){
+        console.log(error.response.data)
+        
+      }
+     })
+
+   },[])
+
+   if(data.main){
+    //console.log(data.main.temp)
+
+   return(
+    <div>
+      <h2>Weather in {returnedCapital}</h2>
+
+      <p>
+        temperature: {data.main.temp}&deg;C
+      </p>
+      <p>
+      <img style={{width:70,height:70}} src={`https://openweathermap.org/img/wn/${data.weather[0].icon}.png`} alt="weather icon"/>
+      </p>
+      <p>
+        wind: {data.wind.speed} m/s
+      </p>
+    </div>
+   )
+   }
  }
 
 
@@ -172,11 +216,12 @@ function App() {
         returnedList={returnedList}
         country={country} 
          />
-      
-      
+     
     </div>
     </>
   )
 }
 
 export default App
+
+
