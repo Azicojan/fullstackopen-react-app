@@ -1,19 +1,24 @@
 {
-  "persons": [
+  "notes": [
     {
-      "name": "Azicojan",
-      "number": "99-802-18-99",
-      "id": 13
+      "id": 1,
+      "content": "HTML is easy",
+      "important": true
     },
     {
-      "name": "Zafar",
-      "number": "99-111-22-33",
-      "id": 14
+      "id": 2,
+      "content": "Browser can execute only JavaScript",
+      "important": false
     },
     {
-      "name": "Timka",
-      "number": "99-123-44-55",
-      "id": 15
+      "id": 3,
+      "content": "GET and POST are the most important methods of HTTP protocol",
+      "important": true
+    },
+    {
+      "id": 4,
+      "content": "Backend is important to learn if you want to find a decent job.",
+      "important": "true"
     }
   ]
 }

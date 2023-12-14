@@ -71,7 +71,7 @@ const App = () => {
   
 }
 
-export default App
+export default App*/
 
 
 const App = () =>{
@@ -85,9 +85,9 @@ const App = () =>{
   useEffect(()=>{
     console.log('effect')
     axios
-    .get('http://localhost:3001/persons')
+    .get('/notes')
     .then(response=>{
-      console.log('promise fulfilled')
+      console.log(response.data)
       setNotes(response.data)
     })
   },[])
@@ -100,9 +100,10 @@ console.log('render', notes.length, 'notes')
 
     event.preventDefault()
     const noteObject = {
-      name: newNote,
-      important: Math.random() <0.5,
       id: notes.length + 1,
+      content: newNote,
+      important: Math.random() <0.5,
+      
     }
     setNotes(notes.concat(noteObject))
     setNewNote('')
@@ -142,12 +143,12 @@ return(
 )
 }
 
-export default App*/
+export default App
 
 
 //ex.2.6-2.10 The Phonebook
-
-/*const Filter = (props)=>{
+/*
+const Filter = (props)=>{
 
   const{foundPerson,findPerson}=props
 
@@ -282,7 +283,7 @@ const findPerson =(event)=>{
 }
 
 export default App
-*/
+
 
 //Exercise 2.11
 /*
@@ -435,7 +436,7 @@ export default App
 
 
 //Ex.2.12-2.15
-
+/*
 const Filter = (props)=>{
 
   const{foundPerson,findPerson}=props
@@ -709,4 +710,4 @@ const deletePerson = (id) => {
 }
 
 export default App
-
+*/
