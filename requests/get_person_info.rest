@@ -1,0 +1,8 @@
+POST    http://persons.fly.dev/
+Content-Type: application/json
+
+{
+        "id": 135,
+        "name": "Zafar",
+        "number": "99-888-55-33"
+    }
