@@ -1,9 +1,10 @@
 
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
-
+const Person = require('./models/person')
 
 app.use(cors())
 app.use(express.json())
@@ -30,7 +31,7 @@ const customFormat = (tokens, req, res)=>{
 app.use(morgan(customFormat));
 
 
-
+/*
 let persons = [
     {
         "id":1,
@@ -52,15 +53,15 @@ let persons = [
         "name": "Mary Poppendieck",
         "number": "39-23-6423122"
     },
-]
+]*/
 
 //const maxInfo = persons.length > 0 ? Math.max(...persons.map(n=>n.id)):0
 
 
 app.get('/api/persons',(request, response)=>{
-    //console.log('Sending data:', persons)
-    response.json(persons)
-    
+    Person.find({}).then(persons =>{
+        response.json(persons)
+    })
 })
 
 app.get('/favicon.ico', (req, res) =>{
@@ -75,27 +76,29 @@ app.get('/info',(request,response)=>{
 
 
 app.get(`/api/persons/:id`,(request,response)=>{
-    const id = Number(request.params.id)
-    console.log(id)
-    const person = persons.find(person => person.id === id)
 
-    if(person){
+    Person.findById(request.params.id).then(person => {
         response.json(person)
-    }
-    else{
-        response.status(404).send('The phone contact is not available.')
-    }
+    })
+    
 
 })
 
 app.delete(`/api/persons/:id`,(request,response)=>{
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
 
-    response.status(204).end()
+    const id = request.params.id
+
+    Person.findOneAndDelete({_id:id}).then(person => {
+        console.log(person)
+        response.json('contact has been deleted')
+    })
+    
+   // persons = persons.filter(person => person.id !== id)
+
+   
 
 })
-
+/*
 const generateId = () => {
     const nextId = persons.length>0
     ?Math.round(Math.random()*1000)
@@ -109,62 +112,60 @@ const generateId = () => {
     else {
         return nextId
     }
-}
+}*/
 
 app.post('/api/persons', (request, response) => {
  const body = request.body
 
- 
- //console.log(person)
- let alreadyExists = persons.map((person)=>person.name)
- //console.log(alreadyExists)
 
- if(!body.name){
-    return response.status(400).json({
-        error:"The name of the contact is missing"
-    })
- }
- else if(!body.number){
-    return response.status(400).json({
-        error:'The number of the contact is missing'
-    })
- }
- else if(alreadyExists.includes(body.name)) {
-   
-    return response.status(400).json({
-        error:'Such a name already exists'
-    })
- }
+  Person.findOne({ name: body.name })
+        .then(existingPerson => {
+            if (body.name === undefined) {
+                return response.status(400).json({
+                    error: "contact missing"
+                });
+            }
 
- const person = {
-    id:generateId(),
-    name:body.name,
-    number:body.number,
- }
+            if (body.number === undefined) {
+                return response.status(400).json({
+                    error: 'The number of the contact is missing'
+                });
+            }
 
- persons = persons.concat(person)
- response.json(person)
+            if (existingPerson) {
+                return response.status(400).json({
+                    error: 'Such a name already exists'
+                });
+            }
+
+            const person = new Person({
+                name: body.name,
+                number: body.number
+            });
+
+            return person.save();
+        })
+        .then(savedPerson => {
+            return response.json(savedPerson);
+        })
+        .catch(error => {
+            // Handle any unexpected errors here
+            console.error(error);
+            return response.status(500).json({
+                error: 'Internal Server Error'
+            });
+        });
+
 })
 
 app.put(`/api/persons/:id`,(request,response)=>{
-    const id = Number(request.params.id)
-
-    /*
-   const contactIndex = persons.findIndex(person => person.id === id)
-   
-    if(!contactIndex === -1){
-        return response.status(404).json({error: 'Contact not found'})
-    }
+    const id = request.params.id
     
-    persons[contactIndex].name = request.body.name || persons[contactIndex].name;
-    persons[contactIndex].number = request.body.number || persons[contactIndex].number;
-    response.json(persons[contactIndex])*/
-
-    persons = persons.map(person => (person.id === id)
-    ? {...person, name: request.body.name || person.name, number: request.body.number || person.number}:person)
-
-    response.json(persons.find(person=>person.id === id))
-    
+    Person.findByIdAndUpdate(id, {$set: {name:request.body.name, number:request.body.number}}).then(person =>{
+        console.log(person)
+        response.json('contact has been updated')
+    })
+        
     
 })
 
@@ -174,8 +175,13 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
+});
 
-const PORT = process.env.PORT || 3001
+
+const PORT = process.env.PORT 
 app.listen(PORT,()=>{
     console.log(`Server running on port ${PORT}`)
 })
