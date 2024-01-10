@@ -69,29 +69,40 @@ app.get('/favicon.ico', (req, res) =>{
 })
 
 
-app.get('/info',(request,response)=>{
-    response.send(`<p>Pnonebook has info for ${persons.length} people.</p>
-<p>${new Date()}</p>`)
+app.get('/info',(request,response, next)=>{
+    Person.countDocuments({}).then(count => {
+        response.send(`<p>There are ${count} contacts in the phonebook</p>
+        <p>${new Date()}</p>`)
+    })
+    .catch(error => next(error))
+    
 })
 
 
-app.get(`/api/persons/:id`,(request,response)=>{
+app.get(`/api/persons/:id`,(request, response, next)=>{
 
     Person.findById(request.params.id).then(person => {
-        response.json(person)
+        if(person){
+            response.json(person)
+        } else {
+            response.status(404).end()
+        }
+        
     })
+    .catch(error => next(error))
     
 
 })
 
-app.delete(`/api/persons/:id`,(request,response)=>{
+app.delete(`/api/persons/:id`,(request,response,next)=>{
 
     const id = request.params.id
 
     Person.findOneAndDelete({_id:id}).then(person => {
-        console.log(person)
-        response.json('contact has been deleted')
+        //console.log(person)
+        response.status(204).end()
     })
+    .catch(error => next(error))
     
    // persons = persons.filter(person => person.id !== id)
 
@@ -158,13 +169,14 @@ app.post('/api/persons', (request, response) => {
 
 })
 
-app.put(`/api/persons/:id`,(request,response)=>{
+app.put(`/api/persons/:id`,(request,response, next)=>{
     const id = request.params.id
     
     Person.findByIdAndUpdate(id, {$set: {name:request.body.name, number:request.body.number}}).then(person =>{
         console.log(person)
         response.json('contact has been updated')
     })
+    .catch(error => next(error))
         
     
 })
@@ -175,10 +187,17 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something went wrong!');
-});
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if(error.name === 'CastError') {
+        return response.status(400).send({  error: 'something went wrong'})
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
 
 
 const PORT = process.env.PORT 
