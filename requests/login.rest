@@ -1,0 +1,15 @@
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkRleHRlciIsImlkIjoiNjVlMTkwYTY5YjJkNWQwOWEzNjkyMTE3IiwiaWF0IjoxNzA5NTM0NzYwfQ.3qGe_WWybH-_GeYoKzLg6Jyiuv6qo8l4ZVFj_1kbJ2w
+
+
+
+{
+    "title": "Get a feel for token-based authentication",
+    "author": "Dexter",
+    "url": "google.com",
+    "likes": 1950,
+    "user": "65e190a69b2d5d09a3692117"
+}
+
+

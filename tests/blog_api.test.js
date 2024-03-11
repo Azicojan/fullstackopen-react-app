@@ -2,6 +2,9 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
@@ -14,7 +17,7 @@ test('blogs are returned as json', async () => {
       .expect('Content-Type', /application\/json/)
 })
 
-test('there are two notes in the test database', async () => {
+test('there are six blogs in the test database', async () => {
     const response = await api.get('/api/blogs')
 
     expect(response.body).toHaveLength(6)
@@ -24,36 +27,83 @@ test('verify if an id property exists', async () => {
 
     const blogIds = response.body.map((blog) => blog.id )
     expect(blogIds).toBeDefined()
-   // console.log(blogIds)
+   
     
 })
 
-test('a new note can be added', async () => {
-
-    const initialBlogs = await api.get('/api/blogs')
-    console.log(initialBlogs.body)
 
 
-    const newNote = {
-        title: 'I am planning to visit Nukus next month',
+const createTestUserAndToken = async () => {
+    const testUsername = 'testuser333';
+    const testPassword = 'testpassword333';
+
+    //Hash the test password
+    const passwordHash = await bcrypt.hash(testPassword, 10)
+
+    //Create a test user
+    const testUser = new User({
+        username: testUsername,
+        passwordHash
+    })
+
+    //Save the test user to the database
+    await testUser.save();
+
+    //Generate a token for the test user
+    const userForToken = {
+        username: testUser.username,
+        id: testUser._id
+    }
+
+    const testToken = jwt.sign(userForToken, process.env.SECRET)
+
+    return { testUser, testToken }
+
+    
+}
+test('a new blog can be added', async () => {
+    const { testToken } = await createTestUserAndToken();
+    //console.log(testToken)
+    
+    const initialBlogs = await api
+      .get('/api/blogs')
+      .set('Authorization', `Bearer ${testToken}`)
+
+      
+    const newBlog = {
+        title: 'We might visit Turkey as well this summer',
         author: 'Me and my family',
-        url: 'www.google.com'
+        url: 'www.google.com',
+        
     }
 
     await api
       .post('/api/blogs')
-      .send(newNote)
+      .send(newBlog)
+      .set('Authorization', `Bearer ${testToken}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-      const response = await api.get('/api/blogs')
-      //console.log(response.body)
+      const response = await api
+        .get('/api/blogs')
+        .set('Authorization', `Bearer ${testToken}`)
       
-      const titles = response.body.map((r) => r.title)
+      
 
       expect(response.body).toHaveLength(initialBlogs.body.length + 1)
-      expect(titles).toContain('I am planning to visit Nukus next month')
+
+      const titles = response.body.map((r) => r.title)
+      expect(titles).toContain('We might visit Turkey as well this summer')
       
+})
+
+test ('401 error', async () => {
+    const response = await api.get('/api/blogs');
+
+    expect(response.status).toBe(401);
+    expect(response.body.error).toBe('Unauthorized')
+    
+
 })
 
 test('verify that the likes property is missing', async () => {
