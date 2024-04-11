@@ -12,27 +12,71 @@ blogsRouter.get('/', async (request, response) => {
     
 })
 
+blogsRouter.get('/:id', async (request, response) => {
+
+    const blog = await Blog.findById(request.params.id)
+
+    if(blog){
+        response.json(blog)
+    }
+    else {
+        response.status(404).end()
+    }
+})
+
+const getTokenFrom = request => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.startsWith('Bearer')) {
+      return authorization.replace('Bearer ', '') // Fix: Remove 'Bearer ' prefix
+    }
+    return null
+  }
 
 
 blogsRouter.post('/', async (request, response) => {
   
    const body = request.body
-   const userIdentified = request.user
+   //const userIdentified = request.user
   //console.log(userIdentified)
+
+  const token = getTokenFrom(request)
+
+  try {
+    // Verify token
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+
+    // Check if decoded token contains 'id' field
+    if (!decodedToken || !decodedToken.id) {
+      return response.status(401).json({ error: 'Invalid token' })
+    }
+
+    // Find user by id
+    const user = await User.findById(decodedToken.id)
+    //console.log(user)
+    // Ensure user exists
+    if (!user) {
+      return response.status(401).json({ error: 'User not found' })
+    }
   
     const blog = new Blog({
         title: body.title,
         author: body.author,
         url: body.url,
         likes: body.likes,
-        user: userIdentified.id
+        user: user._id
     })
 
     const savedBlog = await blog.save()
-    userIdentified.blogs = userIdentified.blogs.concat(savedBlog._id)
-    await userIdentified.save()
+
+    user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save()
 
     response.status(201).json(savedBlog)
+} catch (error) {
+    // Handle token verification errors
+    console.error('Token verification error:', error)
+    return response.status(401).json({ error: 'Token verification failed' })
+  }
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
