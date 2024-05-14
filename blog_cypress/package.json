@@ -1,0 +1,14 @@
+{
+  "name": "blog_cypress",
+  "version": "1.0.0",
+  "description": "e2e testing",
+  "main": "index.js",
+  "scripts": {
+    "cypress:open": "cypress open"
+  },
+  "author": "Azicojan",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^11.2.0"
+  }
+}
